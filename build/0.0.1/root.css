@@ -15,13 +15,15 @@ body{
     min-height: 100vh;
     background: var(--background-color);
     font-family: Arial, sans-serif;
+    overflow:hidden ;
 }
 
 canvas{
     display: block;
     margin: 0 auto;
     background-color: var(--purple-color);
-    border: solid 2px solid var(--purple-color);
+    border-style: solid;
+    border-color: violet;
     width: 800px;
     height: 600px;
 }

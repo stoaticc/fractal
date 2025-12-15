@@ -19,16 +19,16 @@ export default class Player {
 
     update(input, canvasWidth, canvasHeight) {
         // Movement
-        if (input.keys.has('ArrowLeft') || input.keys.has('a')) {
+        if (input.keys.has('ArrowLeft') || input.keys.has('a') || input.keys.has('A')) {
             this.x -= this.speed;
         }
-        if (input.keys.has('ArrowRight') || input.keys.has('d')) {
+        if (input.keys.has('ArrowRight') || input.keys.has('d') || input.keys.has('D')) {
             this.x += this.speed;
         }
-        if (input.keys.has('ArrowUp') || input.keys.has('w')) {
+        if (input.keys.has('ArrowUp') || input.keys.has('w') || input.keys.has('W')) {
             this.y -= this.speed;
         }
-        if (input.keys.has('ArrowDown') || input.keys.has('s')) {
+        if (input.keys.has('ArrowDown') || input.keys.has('s') || input.keys.has('S')) {
             this.y += this.speed;
         }
 

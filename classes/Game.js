@@ -5,6 +5,7 @@ import InputHandler from './InputHandler.js';
 import Particle, { ExplosionParticle, ProjectileTrail } from './Particle.js';
 import ScreenShake from './ScreenShake.js';
 import Light, { LightingSystem } from './Light.js';
+import PowerUp from './PowerUp.js';
 
 export default class Game {
     constructor(canvasId) {
@@ -25,6 +26,7 @@ export default class Game {
         this.enemies = [];
         this.projectiles = [];
         this.particles = [];
+        this.powerUps = [];
         this.input = new InputHandler();
         this.screenShake = new ScreenShake();
         this.lightingSystem = new LightingSystem();
@@ -34,6 +36,13 @@ export default class Game {
         this.paused = false;
         this.enemySpawnTimer = 0;
         this.enemySpawnInterval = 120; // Spawn enemy every 2 seconds at 60fps
+        this.powerUpSpawnTimer = 0;
+        this.powerUpSpawnInterval = 600; // Spawn power-up every 10 seconds
+        
+        // Power-up states
+        this.multiShotActive = false;
+        this.multiShotTimer = 0;
+        this.multiShotDuration = 300; // 5 seconds at 60fps
         
         // Setup shooting
         this.input.setupMouseListeners(this.canvas, (x, y) => this.shoot(x, y));
@@ -54,13 +63,35 @@ export default class Game {
 
     shoot(targetX, targetY) {
         if (!this.gameOver && !this.paused) {
-            const projectile = new Projectile(
-                this.player.getCenterX(),
-                this.player.getCenterY(),
-                targetX,
-                targetY
-            );
-            this.projectiles.push(projectile);
+            if (this.multiShotActive) {
+                // Triple shot
+                const angles = [-0.3, 0, 0.3]; // Spread angles
+                angles.forEach(angleOffset => {
+                    const dx = targetX - this.player.getCenterX();
+                    const dy = targetY - this.player.getCenterY();
+                    const angle = Math.atan2(dy, dx) + angleOffset;
+                    const distance = 500; // arbitrary distance for direction
+                    const newTargetX = this.player.getCenterX() + Math.cos(angle) * distance;
+                    const newTargetY = this.player.getCenterY() + Math.sin(angle) * distance;
+                    
+                    const projectile = new Projectile(
+                        this.player.getCenterX(),
+                        this.player.getCenterY(),
+                        newTargetX,
+                        newTargetY
+                    );
+                    this.projectiles.push(projectile);
+                });
+            } else {
+                // Normal single shot
+                const projectile = new Projectile(
+                    this.player.getCenterX(),
+                    this.player.getCenterY(),
+                    targetX,
+                    targetY
+                );
+                this.projectiles.push(projectile);
+            }
             
             // Add muzzle flash particles
             for (let i = 0; i < 5; i++) {
@@ -97,6 +128,13 @@ export default class Game {
         }
         
         this.enemies.push(new Enemy(x, y));
+    }
+
+    spawnPowerUp() {
+        const x = Math.random() * (this.width - 40) + 20;
+        const y = Math.random() * (this.height - 40) + 20;
+        const type = Math.random() < 0.5 ? 'health' : 'multishot';
+        this.powerUps.push(new PowerUp(x, y, type));
     }
 
     update() {
@@ -162,8 +200,8 @@ export default class Game {
                             ));
                         }
                         
-                        // Screen shake
-                        this.screenShake.shake(8, 15);
+                        // Screen shake - MORE INTENSE!
+                        this.screenShake.shake(20, 25);
                         
                         // Add explosion light
                         const explosionLight = new Light(
@@ -193,6 +231,53 @@ export default class Game {
             return !particle.isDead();
         });
 
+        // Update power-ups
+        this.powerUps.forEach(powerUp => powerUp.update());
+
+        // Check power-up collisions
+        for (let i = this.powerUps.length - 1; i >= 0; i--) {
+            if (this.powerUps[i].checkCollision(this.player)) {
+                const powerUp = this.powerUps[i];
+                
+                if (powerUp.type === 'health') {
+                    // Heal player
+                    this.player.health = Math.min(100, this.player.health + 30);
+                    
+                    // Healing particles
+                    for (let j = 0; j < 20; j++) {
+                        this.particles.push(new Particle(
+                            powerUp.getCenterX(),
+                            powerUp.getCenterY(),
+                            '#00ff00'
+                        ));
+                    }
+                } else if (powerUp.type === 'multishot') {
+                    // Activate multi-shot
+                    this.multiShotActive = true;
+                    this.multiShotTimer = this.multiShotDuration;
+                    
+                    // Power-up particles
+                    for (let j = 0; j < 20; j++) {
+                        this.particles.push(new Particle(
+                            powerUp.getCenterX(),
+                            powerUp.getCenterY(),
+                            '#ff00ff'
+                        ));
+                    }
+                }
+                
+                this.powerUps.splice(i, 1);
+            }
+        }
+
+        // Update multi-shot timer
+        if (this.multiShotActive) {
+            this.multiShotTimer--;
+            if (this.multiShotTimer <= 0) {
+                this.multiShotActive = false;
+            }
+        }
+
         // Spawn enemies
         this.enemySpawnTimer++;
         if (this.enemySpawnTimer >= this.enemySpawnInterval) {
@@ -203,6 +288,13 @@ export default class Game {
             if (this.enemySpawnInterval > 60) {
                 this.enemySpawnInterval -= 1;
             }
+        }
+
+        // Spawn power-ups
+        this.powerUpSpawnTimer++;
+        if (this.powerUpSpawnTimer >= this.powerUpSpawnInterval) {
+            this.spawnPowerUp();
+            this.powerUpSpawnTimer = 0;
         }
     }
 
@@ -235,6 +327,20 @@ export default class Game {
             enemyLight.draw(this.ctx);
         });
 
+        // Draw power-ups
+        this.powerUps.forEach(powerUp => {
+            powerUp.draw(this.ctx);
+            
+            // Add power-up light
+            const powerUpLight = new Light(
+                powerUp.getCenterX(),
+                powerUp.getCenterY(),
+                100,
+                powerUp.type === 'health' ? 'rgba(255, 255, 0, 0.3)' : 'rgba(255, 0, 255, 0.3)'
+            );
+            powerUpLight.draw(this.ctx);
+        });
+
         // Draw player
         this.player.draw(this.ctx);
         
@@ -249,6 +355,21 @@ export default class Game {
         this.ctx.fillText(`Score: ${this.score}`, 10, 30);
         this.ctx.fillText(`Health: ${this.player.health}`, 10, 60);
         this.ctx.fillText(`Enemies: ${this.enemies.length}`, 10, 90);
+
+        // Draw multi-shot indicator
+        if (this.multiShotActive) {
+            this.ctx.fillStyle = '#ff00ff';
+            this.ctx.font = 'bold 24px Arial';
+            this.ctx.fillText(`MULTI-SHOT: ${Math.ceil(this.multiShotTimer / 60)}s`, 10, 120);
+            
+            // Draw progress bar
+            const barWidth = 150;
+            const barHeight = 10;
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            this.ctx.fillRect(10, 130, barWidth, barHeight);
+            this.ctx.fillStyle = '#ff00ff';
+            this.ctx.fillRect(10, 130, barWidth * (this.multiShotTimer / this.multiShotDuration), barHeight);
+        }
 
         if (this.paused) {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
