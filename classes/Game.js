@@ -1,6 +1,7 @@
 import Player from './Player.js';
 import Enemy from './Enemy.js';
 import Projectile from './Projectile.js';
+import EnemyProjectile from './EnemyProjectile.js';
 import InputHandler from './InputHandler.js';
 import Particle, { ExplosionParticle, ProjectileTrail } from './Particle.js';
 import ScreenShake from './ScreenShake.js';
@@ -25,6 +26,7 @@ export default class Game {
         this.player = new Player(this.width / 2, this.height / 2);
         this.enemies = [];
         this.projectiles = [];
+        this.enemyProjectiles = [];
         this.particles = [];
         this.powerUps = [];
         this.input = new InputHandler();
@@ -32,8 +34,22 @@ export default class Game {
         this.lightingSystem = new LightingSystem();
         
         this.score = 0;
+        this.level = 1;
+        this.enemiesKilled = 0;
+        this.enemiesPerLevel = 10;
         this.gameOver = false;
         this.paused = false;
+        this.levelTransition = false;
+        this.levelTransitionTimer = 0;
+        this.levelTransitionDuration = 180; // 3 seconds
+        this.deathAnimation = false;
+        this.deathAnimationTimer = 0;
+        this.deathAnimationDuration = 120; // 2 seconds
+        
+        // Accuracy tracking
+        this.shotsFired = 0;
+        this.shotsHit = 0;
+        
         this.enemySpawnTimer = 0;
         this.enemySpawnInterval = 120; // Spawn enemy every 2 seconds at 60fps
         this.powerUpSpawnTimer = 0;
@@ -60,6 +76,82 @@ export default class Game {
     reset() {
         this.init();
     }
+    
+    updateUI() {
+        // Update HTML elements
+        const levelDisplay = document.getElementById('levelDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const healthBar = document.getElementById('healthBar');
+        const killsDisplay = document.getElementById('killsDisplay');
+        const accuracyDisplay = document.getElementById('accuracyDisplay');
+        const accuracyPhrase = document.getElementById('accuracyPhrase');
+        const statsSmall = document.getElementById('statsSmall');
+        const multishotPanel = document.getElementById('multishotPanel');
+        const multishotProgress = document.getElementById('multishotProgress');
+        
+        if (levelDisplay) levelDisplay.textContent = `>> ${this.level}`;
+        if (scoreDisplay) scoreDisplay.textContent = this.score;
+        if (killsDisplay) killsDisplay.textContent = `${this.enemiesKilled} / ${this.enemiesPerLevel}`;
+        
+        // Health bar
+        if (healthBar) {
+            const healthPercent = this.player.health / 100;
+            healthBar.style.width = `${healthPercent * 100}%`;
+            if (healthPercent > 0.6) {
+                healthBar.style.background = '#00ff00';
+            } else if (healthPercent > 0.3) {
+                healthBar.style.background = '#ffff00';
+            } else {
+                healthBar.style.background = '#ff0000';
+            }
+        }
+        
+        // Accuracy
+        const accuracy = this.getAccuracy();
+        const phrase = this.getAccuracyPhrase(accuracy);
+        if (accuracyDisplay) accuracyDisplay.textContent = `${accuracy}%`;
+        if (accuracyPhrase) {
+            accuracyPhrase.textContent = `[[ ${phrase} ]]`;
+            if (accuracy === 69) {
+                accuracyPhrase.style.color = '#ff69b4';
+            } else if (accuracy >= 85) {
+                accuracyPhrase.style.color = '#ff00ff';
+            } else if (accuracy >= 65) {
+                accuracyPhrase.style.color = '#00ff00';
+            } else {
+                accuracyPhrase.style.color = '#ffffff';
+            }
+        }
+        if (statsSmall) statsSmall.textContent = `${this.shotsHit}/${this.shotsFired} hits`;
+        
+        // Multi-shot
+        if (multishotPanel && multishotProgress) {
+            if (this.multiShotActive) {
+                multishotPanel.style.display = 'block';
+                const progress = (this.multiShotTimer / this.multiShotDuration) * 100;
+                multishotProgress.style.width = `${progress}%`;
+            } else {
+                multishotPanel.style.display = 'none';
+            }
+        }
+    }
+    
+    getAccuracy() {
+        if (this.shotsFired === 0) return 0;
+        return Math.floor((this.shotsHit / this.shotsFired) * 100);
+    }
+    
+    getAccuracyPhrase(accuracy) {
+        if (accuracy === 69) return 'NICE';
+        if (accuracy >= 95) return 'GODLIKE';
+        if (accuracy >= 85) return 'INSANE';
+        if (accuracy >= 75) return 'good... ig';
+        if (accuracy >= 65) return 'skibidi';
+        if (accuracy >= 50) return 'bro.. nah';
+        if (accuracy >= 35) return 'just give up';
+        if (accuracy >= 20) return 'so bad lol';
+        return 'pathetic';
+    }
 
     shoot(targetX, targetY) {
         if (!this.gameOver && !this.paused) {
@@ -81,6 +173,7 @@ export default class Game {
                         newTargetY
                     );
                     this.projectiles.push(projectile);
+                    this.shotsFired++;
                 });
             } else {
                 // Normal single shot
@@ -91,6 +184,7 @@ export default class Game {
                     targetY
                 );
                 this.projectiles.push(projectile);
+                this.shotsFired++;
             }
             
             // Add muzzle flash particles
@@ -127,7 +221,22 @@ export default class Game {
                 break;
         }
         
-        this.enemies.push(new Enemy(x, y));
+        // Choose enemy type based on level
+        let type = 'dumb';
+        const rand = Math.random();
+        
+        if (this.level >= 3) {
+            // Level 3+: all types
+            if (rand < 0.33) type = 'dumb';
+            else if (rand < 0.66) type = 'smart';
+            else type = 'teleport';
+        } else if (this.level >= 2) {
+            // Level 2: dumb and smart
+            type = rand < 0.6 ? 'dumb' : 'smart';
+        }
+        // Level 1: only dumb
+        
+        this.enemies.push(new Enemy(x, y, 30, 30, type));
     }
 
     spawnPowerUp() {
@@ -135,6 +244,38 @@ export default class Game {
         const y = Math.random() * (this.height - 40) + 20;
         const type = Math.random() < 0.5 ? 'health' : 'multishot';
         this.powerUps.push(new PowerUp(x, y, type));
+    }
+    
+    startLevelTransition() {
+        this.levelTransition = true;
+        this.levelTransitionTimer = 0;
+        this.enemies = [];
+        this.enemyProjectiles = [];
+        this.projectiles = [];
+        
+        // Celebration particles
+        for (let i = 0; i < 100; i++) {
+            this.particles.push(new Particle(
+                this.width / 2,
+                this.height / 2,
+                ['#ffff00', '#00ff00', '#00ffff', '#ff00ff'][Math.floor(Math.random() * 4)]
+            ));
+        }
+    }
+    
+    startDeathAnimation() {
+        this.deathAnimation = true;
+        this.deathAnimationTimer = 0;
+        
+        // Death explosion particles
+        for (let i = 0; i < 50; i++) {
+            this.particles.push(new ExplosionParticle(
+                this.player.getCenterX(),
+                this.player.getCenterY()
+            ));
+        }
+        
+        this.screenShake.shake(30, 40);
     }
 
     update() {
@@ -149,7 +290,37 @@ export default class Game {
             this.paused = !this.paused;
         }
         
-        if (this.gameOver || this.paused) return;
+        if (this.paused) return;
+        
+        // Handle death animation
+        if (this.deathAnimation) {
+            this.deathAnimationTimer++;
+            this.screenShake.update();
+            this.particles.forEach(particle => particle.update());
+            this.particles = this.particles.filter(particle => !particle.isDead());
+            
+            if (this.deathAnimationTimer >= this.deathAnimationDuration) {
+                this.gameOver = true;
+                this.deathAnimation = false;
+            }
+            return;
+        }
+        
+        // Handle level transition
+        if (this.levelTransition) {
+            this.levelTransitionTimer++;
+            this.particles.forEach(particle => particle.update());
+            this.particles = this.particles.filter(particle => !particle.isDead());
+            
+            if (this.levelTransitionTimer >= this.levelTransitionDuration) {
+                this.levelTransition = false;
+                // Increase difficulty
+                this.enemySpawnInterval = Math.max(40, this.enemySpawnInterval - 10);
+            }
+            return;
+        }
+        
+        if (this.gameOver) return;
 
         // Update screen shake
         this.screenShake.update();
@@ -162,14 +333,45 @@ export default class Game {
 
         // Update enemies
         this.enemies.forEach(enemy => {
-            enemy.update(this.player.getCenterX(), this.player.getCenterY());
+            enemy.update(this.player.getCenterX(), this.player.getCenterY(), this.projectiles);
+            
+            // Smart enemies shoot
+            if (enemy.shouldShoot()) {
+                const enemyProj = new EnemyProjectile(
+                    enemy.getCenterX(),
+                    enemy.getCenterY(),
+                    this.player.getCenterX(),
+                    this.player.getCenterY()
+                );
+                this.enemyProjectiles.push(enemyProj);
+            }
             
             // Check collision with player
             if (enemy.checkCollision(this.player)) {
                 if (this.player.takeDamage(enemy.damage)) {
-                    this.gameOver = true;
+                    this.startDeathAnimation();
                 }
             }
+        });
+        
+        // Update enemy projectiles
+        this.enemyProjectiles = this.enemyProjectiles.filter(proj => {
+            proj.update();
+            
+            // Remove if off screen
+            if (proj.isOffScreen(this.width, this.height)) {
+                return false;
+            }
+            
+            // Check collision with player
+            if (proj.checkCollision(this.player)) {
+                if (this.player.takeDamage(proj.damage)) {
+                    this.startDeathAnimation();
+                }
+                return false;
+            }
+            
+            return true;
         });
 
         // Update projectiles
@@ -189,6 +391,8 @@ export default class Game {
             // Check collision with enemies
             for (let i = this.enemies.length - 1; i >= 0; i--) {
                 if (projectile.checkCollision(this.enemies[i])) {
+                    this.shotsHit++; // Track hit - counts every shot that connects
+                    
                     if (this.enemies[i].takeDamage(projectile.damage)) {
                         const enemy = this.enemies[i];
                         
@@ -217,6 +421,15 @@ export default class Game {
                         
                         this.enemies.splice(i, 1);
                         this.score += 10;
+                        this.enemiesKilled++;
+                        
+                        // Check for level up
+                        if (this.enemiesKilled >= this.enemiesPerLevel) {
+                            this.level++;
+                            this.enemiesKilled = 0;
+                            this.enemiesPerLevel += 5; // More enemies needed each level
+                            this.startLevelTransition();
+                        }
                     }
                     return false; // Remove projectile
                 }
@@ -312,6 +525,9 @@ export default class Game {
 
         // Draw projectiles
         this.projectiles.forEach(projectile => projectile.draw(this.ctx));
+        
+        // Draw enemy projectiles
+        this.enemyProjectiles.forEach(proj => proj.draw(this.ctx));
 
         // Draw enemies with lights
         this.enemies.forEach(enemy => {
@@ -341,61 +557,107 @@ export default class Game {
             powerUpLight.draw(this.ctx);
         });
 
-        // Draw player
-        this.player.draw(this.ctx);
+        // Draw player (unless in death animation)
+        if (!this.deathAnimation) {
+            this.player.draw(this.ctx);
+        }
         
         // Draw lighting system
         this.lightingSystem.draw(this.ctx, this.width, this.height);
         
         this.ctx.restore();
 
-        // Draw UI (not affected by shake)
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = '20px Arial';
-        this.ctx.fillText(`Score: ${this.score}`, 10, 30);
-        this.ctx.fillText(`Health: ${this.player.health}`, 10, 60);
-        this.ctx.fillText(`Enemies: ${this.enemies.length}`, 10, 90);
-
-        // Draw multi-shot indicator
-        if (this.multiShotActive) {
-            this.ctx.fillStyle = '#ff00ff';
-            this.ctx.font = 'bold 24px Arial';
-            this.ctx.fillText(`MULTI-SHOT: ${Math.ceil(this.multiShotTimer / 60)}s`, 10, 120);
+        // Update HTML UI elements
+        this.updateUI();
+        
+        // Level transition overlay
+        if (this.levelTransition) {
+            const progress = this.levelTransitionTimer / this.levelTransitionDuration;
+            const alpha = progress < 0.5 ? progress * 2 : (1 - progress) * 2;
             
-            // Draw progress bar
-            const barWidth = 150;
-            const barHeight = 10;
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            this.ctx.fillRect(10, 130, barWidth, barHeight);
-            this.ctx.fillStyle = '#ff00ff';
-            this.ctx.fillRect(10, 130, barWidth * (this.multiShotTimer / this.multiShotDuration), barHeight);
+            this.ctx.fillStyle = `rgba(0, 0, 0, ${alpha * 0.7})`;
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            
+            this.ctx.save();
+            this.ctx.globalAlpha = alpha;
+            
+            // Glitch effect border
+            this.ctx.strokeStyle = '#00ff00';
+            this.ctx.lineWidth = 4;
+            this.ctx.strokeRect(this.width / 2 - 250, this.height / 2 - 100, 500, 150);
+            this.ctx.strokeStyle = '#ffff00';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(this.width / 2 - 253, this.height / 2 - 103, 506, 156);
+            
+            this.ctx.fillStyle = '#00ff00';
+            this.ctx.font = 'bold 72px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.shadowBlur = 20;
+            this.ctx.shadowColor = '#00ff00';
+            this.ctx.fillText(`>> LEVEL ${this.level} <<`, this.width / 2, this.height / 2 - 20);
+            this.ctx.shadowBlur = 0;
+            this.ctx.font = 'bold 36px Arial';
+            this.ctx.fillStyle = '#ffff00';
+            this.ctx.fillText('! GET READY !', this.width / 2, this.height / 2 + 40);
+            this.ctx.restore();
+            this.ctx.textAlign = 'left';
         }
 
         if (this.paused) {
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
             this.ctx.fillRect(0, 0, this.width, this.height);
+            
+            this.ctx.strokeStyle = '#00ff00';
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeRect(this.width / 2 - 200, this.height / 2 - 80, 400, 160);
+            
             this.ctx.fillStyle = '#00ff00';
-            this.ctx.font = '48px Arial';
+            this.ctx.font = 'bold 56px Arial';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText('PAUSED', this.width / 2, this.height / 2);
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = '#00ff00';
+            this.ctx.fillText('|| PAUSED ||', this.width / 2, this.height / 2);
+            this.ctx.shadowBlur = 0;
             this.ctx.font = '20px Arial';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText('Press ESC or P to resume', this.width / 2, this.height / 2 + 40);
-            this.ctx.fillText('Press R to restart', this.width / 2, this.height / 2 + 70);
+            this.ctx.fillText('» ESC / P = resume', this.width / 2, this.height / 2 + 40);
+            this.ctx.fillText('» R = restart', this.width / 2, this.height / 2 + 70);
             this.ctx.textAlign = 'left';
         }
 
         if (this.gameOver) {
-            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
             this.ctx.fillRect(0, 0, this.width, this.height);
+            
+            // Red border
+            this.ctx.strokeStyle = '#ff0000';
+            this.ctx.lineWidth = 4;
+            this.ctx.strokeRect(this.width / 2 - 250, this.height / 2 - 120, 500, 240);
+            this.ctx.strokeStyle = '#ffffff';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(this.width / 2 - 253, this.height / 2 - 123, 506, 246);
+            
             this.ctx.fillStyle = '#ff0000';
-            this.ctx.font = '48px Arial';
+            this.ctx.font = 'bold 72px Arial';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText('GAME OVER', this.width / 2, this.height / 2);
-            this.ctx.font = '24px Arial';
+            this.ctx.shadowBlur = 25;
+            this.ctx.shadowColor = '#ff0000';
+            this.ctx.fillText('×× GAME OVER ××', this.width / 2, this.height / 2 - 30);
+            this.ctx.shadowBlur = 0;
+            
+            this.ctx.font = 'bold 28px Arial';
+            this.ctx.fillStyle = '#ffff00';
+            this.ctx.fillText(`LEVEL ${this.level} // SCORE ${this.score}`, this.width / 2, this.height / 2 + 20);
+            
+            const finalAccuracy = this.getAccuracy();
+            const finalPhrase = this.getAccuracyPhrase(finalAccuracy);
+            this.ctx.font = 'bold 24px Arial';
+            this.ctx.fillStyle = '#00ffff';
+            this.ctx.fillText(`ACCURACY: ${finalAccuracy}% [${finalPhrase}]`, this.width / 2, this.height / 2 + 60);
+            
+            this.ctx.font = '20px Arial';
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(`Final Score: ${this.score}`, this.width / 2, this.height / 2 + 40);
-            this.ctx.fillText('Press R to restart', this.width / 2, this.height / 2 + 80);
+            this.ctx.fillText('» Press R to restart «', this.width / 2, this.height / 2 + 100);
             this.ctx.textAlign = 'left';
         }
     }
