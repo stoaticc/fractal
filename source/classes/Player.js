@@ -7,10 +7,13 @@ export default class Player {
         this.speed = 5;
         this.health = 100;
         this.color = '#00ff00';
-        
+        this.shockCrystals = 0; // Track collected shock crystals
+        this.stars = 0; // Track collected stars
+        this.maxInventorySlots = 3; // Maximum inventory capacity
+
         // Load sprite
         this.sprite = new Image();
-        this.sprite.src = '../build/0.0.1/img/player.png';
+        this.sprite.src = '';
         this.spriteLoaded = false;
         this.sprite.onload = () => {
             this.spriteLoaded = true;
@@ -45,13 +48,13 @@ export default class Player {
             ctx.fillStyle = this.color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
-        
+
         // Draw health bar
         ctx.fillStyle = 'red';
         ctx.fillRect(this.x, this.y - 10, this.width, 5);
         ctx.fillStyle = 'green';
         ctx.fillRect(this.x, this.y - 10, this.width * (this.health / 100), 5);
-        
+
         // Add glow effect
         if (this.spriteLoaded) {
             ctx.shadowBlur = 15;
@@ -72,5 +75,46 @@ export default class Player {
     takeDamage(amount) {
         this.health -= amount;
         return this.health <= 0;
+    }
+
+    addShockCrystal() {
+        this.shockCrystals++;
+    }
+
+    hasShockCrystal() {
+        return this.shockCrystals > 0;
+    }
+
+    useShockCrystal() {
+        if (this.shockCrystals > 0) {
+            this.shockCrystals--;
+            return true;
+        }
+        return false;
+    }
+
+    addStar() {
+        this.stars++;
+    }
+
+    hasStar() {
+        return this.stars > 0;
+    }
+
+    useStar() {
+        if (this.stars > 0) {
+            this.stars--;
+            return true;
+        }
+        return false;
+    }
+
+    getInventoryCount() {
+        // Count total items in inventory (bombs counted separately)
+        return this.shockCrystals + this.stars;
+    }
+
+    hasInventorySpace() {
+        return this.getInventoryCount() < this.maxInventorySlots;
     }
 }

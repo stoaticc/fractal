@@ -1,3 +1,16 @@
+# 0.0.5 - BOOM AND PLUH!
+- full screen
+- vhs effects
+- new type of enemy: medium (smart + dumb)
+- accuracy counter
+- level transition animations
+- bomb. and firebombs
+- Mage - teleports, attacks, glitches, is purple and drops a shockwave crystal.
+- NOVA - the glitch, destroys, inverts, shoots lazer, moves player, spawns enemies and just goes away.
+- funny death message
+
+Controls: buy star (8), spawn mage (9), spawn nova (7), pause nova (k)
+
 # 0.0.2 - YEAHHHHH (15th december)
 ## Level System
 - Start at Level 1, progress by killing enemies

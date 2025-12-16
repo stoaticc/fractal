@@ -4,35 +4,73 @@ export default class Enemy {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.type = type; // 'dumb', 'smart', 'teleport'
-        this.speed = type === 'smart' ? 2.5 : type === 'teleport' ? 1.5 : 2;
-        this.health = type === 'smart' ? 40 : type === 'teleport' ? 25 : 30;
+        this.type = type; // 'dumb', 'medium', 'smart', 'teleport'
+        this.speed = type === 'smart' ? 2.5 : type === 'teleport' ? 1.5 : type === 'medium' ? 2.2 : 2;
+        this.health = type === 'smart' ? 40 : type === 'teleport' ? 25 : type === 'medium' ? 35 : 30;
         this.color = '#ff0000';
         this.damage = 10;
-        
-        // Smart enemy properties
+
+        // Fire transformation
+        this.onFire = false;
+        this.originalType = type;
+        this.originalSpeed = this.speed;
+
+        // Smart and medium enemy properties
         this.shootTimer = 0;
-        this.shootInterval = 120; // Shoot every 2 seconds
+        this.shootInterval = type === 'medium' ? 180 : 120; // Medium shoots slower than smart
         this.dodgeTimer = 0;
         this.dodgeDirection = { x: 0, y: 0 };
-        
+
         // Teleport enemy properties
         this.teleportTimer = 0;
         this.teleportInterval = 180; // Teleport every 3 seconds
         this.teleportCooldown = 0;
         this.alpha = 1;
         this.isTeleporting = false;
-        
+
         // Load sprite
         this.sprite = new Image();
-        this.sprite.src = '../build/0.0.1/img/enemy.png';
+        this.sprite.src = '';
         this.spriteLoaded = false;
         this.sprite.onload = () => {
             this.spriteLoaded = true;
         };
     }
 
-    update(playerX, playerY, projectiles = []) {
+    update(playerX, playerY, projectiles = [], bombs = []) {
+        // Check for nearby bombs to avoid
+        let avoidBombs = false;
+        let avoidDirection = { x: 0, y: 0 };
+
+        // Update fire trail timer
+        if (this.onFire) {
+            if (!this.fireTrailTimer) this.fireTrailTimer = 0;
+            this.fireTrailTimer++;
+        }
+
+        bombs.forEach(bomb => {
+            const dx = this.getCenterX() - bomb.x;
+            const dy = this.getCenterY() - bomb.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const warningRadius = bomb.getWarningRadius();
+
+            if (warningRadius > 0 && dist < warningRadius) {
+                avoidBombs = true;
+                // Move away from bomb
+                if (dist > 0) {
+                    avoidDirection.x += (dx / dist) * 3;
+                    avoidDirection.y += (dy / dist) * 3;
+                }
+            }
+        });
+
+        // If avoiding bombs, override normal behavior
+        if (avoidBombs) {
+            this.x += avoidDirection.x;
+            this.y += avoidDirection.y;
+            return;
+        }
+
         if (this.type === 'dumb') {
             // Dumb: just walks straight towards player
             const dx = playerX - this.x;
@@ -43,17 +81,29 @@ export default class Enemy {
                 this.x += (dx / distance) * this.speed;
                 this.y += (dy / distance) * this.speed;
             }
+        } else if (this.type === 'medium') {
+            // Medium: moves towards player and shoots, no dodging
+            this.shootTimer++;
+
+            const dx = playerX - this.getCenterX();
+            const dy = playerY - this.getCenterY();
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 100) { // Keep some distance
+                this.x += (dx / distance) * this.speed;
+                this.y += (dy / distance) * this.speed;
+            }
         } else if (this.type === 'smart') {
             // Smart: tries to dodge projectiles and shoots
             this.shootTimer++;
-            
+
             // Check for nearby projectiles to dodge
             let shouldDodge = false;
             projectiles.forEach(proj => {
                 const dx = proj.x - this.getCenterX();
                 const dy = proj.y - this.getCenterY();
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                
+
                 if (dist < 80) { // Dodge if projectile is close
                     shouldDodge = true;
                     // Dodge perpendicular to projectile direction
@@ -61,7 +111,7 @@ export default class Enemy {
                     this.dodgeDirection.y = dx / dist;
                 }
             });
-            
+
             if (shouldDodge) {
                 this.x += this.dodgeDirection.x * this.speed * 1.5;
                 this.y += this.dodgeDirection.y * this.speed * 1.5;
@@ -70,7 +120,7 @@ export default class Enemy {
                 const dx = playerX - this.getCenterX();
                 const dy = playerY - this.getCenterY();
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 if (distance > 150) { // Keep distance
                     this.x += (dx / distance) * this.speed;
                     this.y += (dy / distance) * this.speed;
@@ -101,58 +151,105 @@ export default class Enemy {
                     this.x += (dx / distance) * this.speed;
                     this.y += (dy / distance) * this.speed;
                 }
-                
+
                 // Teleport timer
                 this.teleportTimer++;
                 if (this.teleportTimer >= this.teleportInterval && this.teleportCooldown === 0) {
                     this.isTeleporting = true;
                     this.teleportTimer = 0;
                 }
-                
+
                 if (this.teleportCooldown > 0) {
                     this.teleportCooldown--;
                 }
             }
         }
     }
-    
+
     shouldShoot() {
-        if (this.type === 'smart' && this.shootTimer >= this.shootInterval) {
+        if ((this.type === 'smart' || this.type === 'medium') && this.shootTimer >= this.shootInterval) {
             this.shootTimer = 0;
             return true;
         }
         return false;
     }
 
+    ignite() {
+        if (!this.onFire) {
+            this.onFire = true;
+            // Transform to smart behavior if not already smart
+            if (this.originalType !== 'smart') {
+                this.type = 'smart';
+                this.speed = this.originalSpeed * 1.5; // Increase speed by 50%
+            } else {
+                this.speed = this.originalSpeed * 1.5;
+            }
+        }
+    }
+
     draw(ctx) {
         if (this.spriteLoaded) {
             ctx.save();
-            
+
             // Apply teleport alpha
             if (this.type === 'teleport') {
                 ctx.globalAlpha = this.alpha;
             }
-            
+
             ctx.shadowBlur = 15;
             ctx.shadowColor = '#ff0000';
             ctx.drawImage(this.sprite, this.x, this.y, this.width, this.height);
-            
+
             // Draw type indicator (small dot)
             ctx.shadowBlur = 0;
             if (this.type === 'smart') {
                 ctx.fillStyle = '#ffff00';
                 ctx.fillRect(this.x + this.width / 2 - 2, this.y - 5, 4, 4);
+            } else if (this.type === 'medium') {
+                ctx.fillStyle = '#ff8800';
+                ctx.fillRect(this.x + this.width / 2 - 2, this.y - 5, 4, 4);
             } else if (this.type === 'teleport') {
                 ctx.fillStyle = '#00ffff';
                 ctx.fillRect(this.x + this.width / 2 - 2, this.y - 5, 4, 4);
             }
-            
+
             ctx.restore();
         } else {
             // Fallback to colored rectangle
             ctx.fillStyle = this.color;
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
+
+        // Draw fire effect if on fire
+        if (this.onFire) {
+            ctx.save();
+            // White outline
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+            // Fire texture overlay (simple noisy effect)
+            ctx.globalAlpha = 0.4;
+            const noiseSize = 4;
+            for (let i = 0; i < this.width; i += noiseSize) {
+                for (let j = 0; j < this.height; j += noiseSize) {
+                    if (Math.random() > 0.5) {
+                        const brightness = Math.floor(100 + Math.random() * 155);
+                        ctx.fillStyle = `rgb(255, ${brightness}, 0)`;
+                        ctx.fillRect(this.x + i, this.y + j, noiseSize, noiseSize);
+                    }
+                }
+            }
+            ctx.restore();
+        }
+    }
+
+    shouldLeaveFireTrail() {
+        if (this.onFire && this.fireTrailTimer >= this.fireTrailInterval) {
+            this.fireTrailTimer = 0;
+            return true;
+        }
+        return false;
     }
 
     getCenterX() {
@@ -165,9 +262,9 @@ export default class Enemy {
 
     checkCollision(entity) {
         return this.x < entity.x + entity.width &&
-               this.x + this.width > entity.x &&
-               this.y < entity.y + entity.height &&
-               this.y + this.height > entity.y;
+            this.x + this.width > entity.x &&
+            this.y < entity.y + entity.height &&
+            this.y + this.height > entity.y;
     }
 
     takeDamage(amount) {

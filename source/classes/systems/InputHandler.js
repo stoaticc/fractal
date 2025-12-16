@@ -4,15 +4,22 @@ export default class InputHandler {
         this.mouse = { x: 0, y: 0, clicked: false };
         this.pausePressed = false;
         this.resetPressed = false;
-        
+        this.firstInputDetected = false;
+        this.firstInputTime = 0;
+
         window.addEventListener('keydown', (e) => {
+            if (!this.firstInputDetected) {
+                this.firstInputDetected = true;
+                this.firstInputTime = Date.now();
+            }
+
             this.keys.add(e.key);
-            
+
             // Handle pause
             if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
                 this.pausePressed = true;
             }
-            
+
             // Handle reset
             if (e.key === 'r' || e.key === 'R') {
                 this.resetPressed = true;
@@ -24,7 +31,7 @@ export default class InputHandler {
         });
     }
 
-    setupMouseListeners(canvas, onShoot) {
+    setupMouseListeners(canvas, onShoot, onRightClick) {
         canvas.addEventListener('mousemove', (e) => {
             const rect = canvas.getBoundingClientRect();
             this.mouse.x = e.clientX - rect.left;
@@ -32,22 +39,47 @@ export default class InputHandler {
         });
 
         canvas.addEventListener('click', (e) => {
+            if (!this.firstInputDetected) {
+                this.firstInputDetected = true;
+                this.firstInputTime = Date.now();
+            }
+
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             onShoot(mouseX, mouseY);
         });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (!this.firstInputDetected) {
+                this.firstInputDetected = true;
+                this.firstInputTime = Date.now();
+            }
+
+            if (onRightClick) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                onRightClick(mouseX, mouseY);
+            }
+        });
     }
-    
+
     consumePausePress() {
         const pressed = this.pausePressed;
         this.pausePressed = false;
         return pressed;
     }
-    
+
     consumeResetPress() {
         const pressed = this.resetPressed;
         this.resetPressed = false;
         return pressed;
+    }
+
+    shouldShowInstructions() {
+        if (!this.firstInputDetected) return true;
+        return (Date.now() - this.firstInputTime) < 10000; // Hide after 10 seconds
     }
 }

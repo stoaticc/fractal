@@ -1,0 +1,250 @@
+export default class DeathMessages {
+    static getDeathMessage(game) {
+        const messages = [];
+        
+        // Analyze death context
+        const enemies = game.enemies.length;
+        const accuracy = game.getAccuracy();
+        const level = game.level;
+        const health = game.player.health;
+        const enemyProjectiles = game.enemyProjectiles.length;
+        const hasMage = game.mage !== null;
+        const hasNova = game.nova !== null && game.nova.isActive;
+        const score = game.score;
+        
+        // Boss-specific deaths
+        if (hasNova) {
+            messages.push(
+                "Nova scrambled your existence into pixels",
+                "Teleported straight into oblivion",
+                "Reality.exe has stopped working",
+                "You got vaporized by a laser... typical",
+                "Nova said 'nah' and you ceased to exist",
+                "Glitched out of life itself",
+                "Color inverted your soul out of your body",
+                "Nova is just... too chaotic for you",
+                "Your brain couldn't handle the glitch",
+                "Deleted by cosmic interference"
+            );
+        } else if (hasMage) {
+            messages.push(
+                "Mage yeeted you into another dimension",
+                "Outplayed by purple magic... embarrassing",
+                "The walls closed in on your hopes and dreams",
+                "Mage said 'skill issue' and he was right",
+                "You got teleport-baited like a noob",
+                "Purple projectiles > your dodging skills",
+                "Mage literally summoned your demise",
+                "Pushed and pulled into the afterlife"
+            );
+        }
+        
+        // Overwhelmed by enemies
+        if (enemies > 15) {
+            messages.push(
+                "Bro got absolutely SWARMED",
+                "Death by enemy mosh pit",
+                "They formed a line just to delete you",
+                "Enemies called a meeting... you were the topic",
+                "Outnumbered, outgunned, out-skilled",
+                "The enemy union voted you out",
+                "Ganged up on like it's a 1v30",
+                "They smelled fear and it smelled like you",
+                "skill issue"
+            );
+        }
+        
+        // Bullet hell deaths
+        if (enemyProjectiles > 10) {
+            messages.push(
+                "Skill issue",
+                "Projectiles said 'this you?' and it was",
+                "Turned into swiss cheese by bullets",
+                "Bullet hell? More like bullet L",
+                "Those red circles weren't friendly suggestions",
+                "Your hitbox was simply too large (cope)",
+                "Projectile dodging tutorial: FAILED",
+                "Imagine getting hit by slow-moving circles",
+                "skill issue"
+            );
+        }
+        
+        // Low accuracy deaths
+        if (accuracy < 30) {
+            messages.push(
+                "Can't hit enemies, can't dodge... RIP",
+                "Your aim is why you're reading this",
+                "Maybe try turning on aim assist? Oh wait...",
+                "Stormtrooper-level accuracy detected",
+                "noob vs ai",
+                "You shot everything except the enemies",
+                "shooting yourself in the foot is easier",
+                "The targets were THAT way ↑",
+                "Missing shots AND dodges? Impressive.",
+                "Even the tutorial would've helped at this point",
+                "skill issue"
+            );
+        }
+        
+        // High accuracy but still died
+        if (accuracy > 80) {
+            messages.push(
+                "Good aim, bad survival instincts",
+                "You can shoot but can you MOVE?",
+                "All aim, no brain",
+                "Precision without positioning = death",
+                "Sniper mentality in a bullet hell... bold",
+                "Your accuracy was godlike, your HP was not"
+            );
+        }
+        
+        // Early game deaths
+        if (level < 3) {
+            messages.push(
+                "Died before the game even started lol",
+                "Literally level 1... LEVEL 1.",
+                "The tutorial boss would be proud",
+                "You made it so far! (not really)",
+                "Speed-running failure any%",
+                "This game clearly isn't for you",
+                "Couldn't even make it to level 3?",
+                "My grandma lasted longer than you"
+            );
+        }
+        
+        // Mid-game deaths
+        if (level >= 3 && level < 8) {
+            messages.push(
+                "You were doing okay... then you weren't",
+                "Respectable run, shameful ending",
+                "So close to the boss, yet so far",
+                "The difficulty curve hit you like a truck",
+                "Average run, below-average ending",
+                "You peaked early unfortunately"
+            );
+        }
+        
+        // Late game deaths
+        if (level >= 8) {
+            messages.push(
+                "You almost had it... almost",
+                "Got too confident and paid the price",
+                "The legend ends here, tragically",
+                "RIP to a semi-decent run",
+                "You were so close to greatness",
+                "At least you made it this far... barely"
+            );
+        }
+        
+        // High score deaths
+        if (score > 1000) {
+            messages.push(
+                "All that score for nothing lmao",
+                "Big numbers, big disappointment",
+                "Score doesn't protect you from skill issues",
+                "You grinded for THIS?",
+                "Impressive score, unimpressive ending"
+            );
+        }
+        
+        // Generic hilarious deaths
+        messages.push(
+            "Skill issue",
+            "Simply outplayed by AI",
+            "just 67 at this point",
+            "L + ratio + you died",
+            "Just dodge lol",
+            "Have you tried not dying?",
+            "just don't be bad",
+            "Imagine being this bad",
+            "Certified bruh moment",
+            "Death% speedrun achieved",
+            "You tried your best (it wasn't enough)",
+            "Better luck next time (you'll need it)",
+            "The game was rigged from the start",
+            "Eliminated. Terminated. Deleted.",
+            "You were alive, now you're not",
+            "Game said 'nah' to your existence",
+            "Uninstalled from life",
+            "left the server?",
+            "cmon, the pixels were trying to help you",
+            "You got rekt by basic mechanics",
+            "The pixels just weren't on your side",
+            "return to sender",
+            "Not the chosen one apparently",
+            "Your ancestors are disappointed",
+            "F in the chat for this run",
+            "Clowned by basic geometry",
+            "Ratio'd by rectangles",
+            "Rectangles: 1, You: 0",
+            "WASD is your friend, not your enemy",
+            "Mouse aim = questionable",
+            "i just.. don't understand",
+            "Critical existence failure",
+            "You got sent to the shadow realm",
+            "Respawn? More like REGRET-spawn",
+            "packed by squares HAHA!",
+            "That was... underwhelming",
+            "Died of cringe",
+            "more death soon?",
+            "now i get it. 100x",
+            "when are you going to be serious?",
+            "bad at geometry",
+            "shame SHAME SHAME SHAMEEEE!!!!111!!",
+            "beuh",
+            "Natural selection at work"
+        );
+        
+        // Return random message
+        return messages[Math.floor(Math.random() * messages.length)];
+    }
+    
+    static getDeathCause(game) {
+        const enemies = game.enemies.length;
+        const enemyProjectiles = game.enemyProjectiles.length;
+        const hasMage = game.mage !== null;
+        const hasNova = game.nova !== null && game.nova.isActive;
+        
+        // Determine cause
+        if (hasNova) {
+            const novaCauses = [
+                "Lasered by Nova",
+                "Glitch damage",
+                "Teleported into danger",
+                "Reality malfunction",
+                "Nova collision",
+                "Cosmic chaos"
+            ];
+            return novaCauses[Math.floor(Math.random() * novaCauses.length)];
+        }
+        
+        if (hasMage) {
+            const mageCauses = [
+                "Mage projectile",
+                "Wall collision",
+                "Force push/pull",
+                "Mage contact",
+                "Purple magic"
+            ];
+            return mageCauses[Math.floor(Math.random() * mageCauses.length)];
+        }
+        
+        if (enemyProjectiles > 8) {
+            return "Projectile spam";
+        }
+        
+        if (enemies > 12) {
+            return "Enemy swarm";
+        }
+        
+        const genericCauses = [
+            "Enemy contact",
+            "Red circle impact",
+            "Poor positioning",
+            "Bad.",
+            "Lack of skill"
+        ];
+        
+        return genericCauses[Math.floor(Math.random() * genericCauses.length)];
+    }
+}
