@@ -14,85 +14,85 @@ Brutal top-down arena shooter built with raw JavaScript & Canvas API. No framewo
 
 ### MOVEMENT & COMBAT
 
--   **WASD / ARROWS** » move your existence
--   **MOUSE CLICK** » shoot projectiles (hold to auto-fire)
--   **RIGHT CLICK** » use inventory items (bombs/crystals/stars)
--   **F / F11** » toggle fullscreen
--   **P / ESC** » pause (coward break)
--   **R** » restart after inevitable death
+- **WASD / ARROWS** » move your existence
+- **MOUSE CLICK** » shoot projectiles (hold to auto-fire)
+- **RIGHT CLICK** » use inventory items (bombs/crystals/stars)
+- **F / F11** » toggle fullscreen
+- **P / ESC** » pause (coward break)
+- **R** » restart after inevitable death
 
 ### INVENTORY SELECTION
 
--   **1-3** » select inventory slot (bombs, crystals, or stars)
--   **8** » force-buy star (-80 XP, instant spawn)
--   **9** » test spawn Mage boss
--   **7** » test spawn Nova boss
--   **K** » toggle Nova pause (debug)
+- **1-3** » select inventory slot (bombs, crystals, or stars)
+- **8** » force-buy star (-80 XP, instant spawn)
+- **9** » test spawn Mage boss
+- **7** » test spawn Nova boss
+- **K** » toggle Nova pause (debug)
 
 ## !? ENEMY TYPES
 
 Rectangle-based terror. All unique. All deadly.
 
--   **DUMB** » walks straight. Zero brain cells.
--   **MEDIUM** » shoots projectiles at you
--   **SMART** (yellow center) » dodges your shots & fires back
--   **TELEPORT** (cyan center) » blinks across the map
+- **DUMB** » walks straight. Zero brain cells.
+- **MEDIUM** » shoots projectiles at you
+- **SMART** (yellow center) » dodges your shots & fires back
+- **TELEPORT** (cyan center) » blinks across the map
 
 ## !! BOSS BATTLES
 
 ### MAGE BOSS (Purple Magic)
 
--   **800 HP** with invulnerability shield
--   **Teleportation** across arena
--   **Wall summoning** (2-4 walls per cast, max 12 on screen)
--   **Push/pull forces** yanking you around
--   **Purple projectile spam**
--   Spawns at **level 8**, then **every 6 levels**
--   Drops **Shock Crystal** on defeat
--   **Stars deal 150 damage** (bypass shield)
+- **800 HP** with invulnerability shield
+- **Teleportation** across arena
+- **Wall summoning** (2-4 walls per cast, max 12 on screen)
+- **Push/pull forces** yanking you around
+- **Purple projectile spam**
+- Spawns at **level 8**, then **every 6 levels**
+- Drops **Shock Crystal** on defeat
+- **Stars deal 150 damage** (bypass shield)
 
 ### NOVA BOSS (Chaos Incarnate)
 
--   **800 HP** ultra-hard challenge
--   **Lightning lasers** that vaporize everything
--   **Player teleportation** - she moves YOU
--   **Enemy summoning** mid-fight
--   **Color inversion** glitch effect
--   **UI scrambling** with random symbols
--   **Glitch areas** distorting reality
--   **Disappear/reappear** (comes back 2 levels later with saved health)
--   **Stars break her shield** and deal 150 damage
--   **Key 7** to spawn, **K** to pause
+- **800 HP** ultra-hard challenge
+- **Lightning lasers** that vaporize everything
+- **Player teleportation** - she moves YOU
+- **Enemy summoning** mid-fight
+- **Color inversion** glitch effect
+- **UI scrambling** with random symbols
+- **Glitch areas** distorting reality
+- **Disappear/reappear** (comes back 2 levels later with saved health)
+- **Stars break her shield** and deal 150 damage
+- **Key 7** to spawn, **K** to pause
 
 ## & INVENTORY SYSTEM (3 SLOTS, STACKABLE)
 
 ### BOMBS
 
--   Dropped by dumb enemies (10% chance)
--   Dropped by medium/smart enemies (30% chance)
--   **Stack up to 8** per slot
--   **Right-click** to place (3 max at once)
--   Explode after 2 seconds
--   **Fire bombs** create long-lasting fire patches (~15 seconds)
--   **Destroy walls** (only bombs can!)
+- Dropped by dumb enemies (10% chance)
+- Dropped by medium/smart enemies (30% chance)
+- **Stack up to 8** per slot
+- **Right-click** to place (3 max at once)
+- Explode after 2 seconds
+- **Fire bombs** create long-lasting fire patches (~15 seconds)
+- **Destroy walls** (only bombs can!)
 
 ### SHOCK CRYSTALS
 
--   Dropped by **Mage boss** on death
--   **Right-click** to trigger **screen-wide shockwave**
--   Kills ALL enemies instantly
--   Particle explosion madness
+- Dropped by **Mage boss** on death
+- **Right-click** to trigger **screen-wide shockwave**
+- Kills ALL enemies instantly
+- Particle explosion madness
 
 ### STARS
 
--   **Purchase from Star Orbs** (80 XP cost)
--   **Right-click** to throw bouncing projectile
--   Bounces off screen borders
--   **Kills enemies instantly**
--   **Damages bosses** (150 HP, breaks Nova's shield)
--   Lasts 6 seconds (shrinks & fades)
--   Rotates & leaves trail particles
--   **Force-buy with key 8** (spawns orb instantly)
+- **Purchase from Star Orbs** (80 XP cost)
+- **Right-click** to throw bouncing projectile
+- Bounces off screen borders
+- **Kills enemies instantly**
+- **Damages bosses** (150 HP, breaks Nova's shield)
+- Lasts 6 seconds (shrinks & fades)
+- Rotates & leaves trail particles
+- **Force-buy with key 8** (spawns orb instantly)
 
 ## % POWER-UPS & COLLECTIBLES
 
@@ -123,32 +123,32 @@ Rectangle-based terror. All unique. All deadly.
 
 ### Accuracy System
 
--   Tracks every shot fired
--   Counts hits on ANY enemy (not just kills)
--   Displayed with snarky phrases:
-    -   95%+ = "GODLIKE"
-    -   69% = "NICE"
-    -   <20% = "pathetic"
+- Tracks every shot fired
+- Counts hits on ANY enemy (not just kills)
+- Displayed with snarky phrases:
+  - 95%+ = "GODLIKE"
+  - 69% = "NICE"
+  - <20% = "pathetic"
 
 ### Death Messages
 
--   **Context-aware algorithm** analyzes how you died
--   Boss-specific roasts
--   Accuracy-based mockery
--   Level-dependent shame
--   Enemy swarm detection
--   Over **100 unique messages** like:
-    -   "Skill issue"
-    -   "Nova scrambled your existence into pixels"
-    -   "Rectangles: 1, You: 0"
-    -   "Your ancestors are disappointed"
+- **Context-aware algorithm** analyzes how you died
+- Boss-specific roasts
+- Accuracy-based mockery
+- Level-dependent shame
+- Enemy swarm detection
+- Over **100 unique messages** like:
+  - "Skill issue"
+  - "Nova scrambled your existence into pixels"
+  - "Rectangles: 1, You: 0"
+  - "Your ancestors are disappointed"
 
 ### Wall Mechanics
 
--   Summoned by Mage boss
--   **Block projectiles** (no pass-through)
--   **Only destroyed by bombs** (not shots)
--   Strategic obstacles
+- Summoned by Mage boss
+- **Block projectiles** (no pass-through)
+- **Only destroyed by bombs** (not shots)
+- Strategic obstacles
 
 **Requirements:** ES6+ browser. No ancient relics.
 
@@ -172,12 +172,12 @@ source/
 
 ## // TECH STACK
 
--   **Vanilla JavaScript (ES6+)** - Pure chaos, zero dependencies
--   **HTML5 Canvas API** - Raw pixel manipulation
--   **Modular ES6 Classes** - 23 files, organized by category
--   **Custom particle systems** - Explosions, trails, glitch aura
--   **State machines** - Boss AI behaviors
--   **No frameworks** - Just skill and canvas methods
+- **Vanilla JavaScript (ES6+)** - Pure chaos, zero dependencies
+- **HTML5 Canvas API** - Raw pixel manipulation
+- **Modular ES6 Classes** - 23 files, organized by category
+- **Custom particle systems** - Explosions, trails, glitch aura
+- **State machines** - Boss AI behaviors
+- **No frameworks** - Just skill and canvas methods
 
 ---
 
@@ -190,13 +190,13 @@ source/
 
 ## !! TIPS
 
--   Dodge > aim (especially at low accuracy)
--   Save shock crystals for boss fights
--   Stars break Nova's shield - use them wisely
--   Bombs destroy walls (projectiles don't)
--   Hold click for auto-fire
--   Nova inverts colors randomly (it's intentional)
--   "Skill issue" is a diagnosis, not an insult
+- Dodge > aim (especially at low accuracy)
+- Save shock crystals for boss fights
+- Stars break Nova's shield - use them wisely
+- Bombs destroy walls (projectiles don't)
+- Hold click for auto-fire
+- Nova inverts colors randomly (it's intentional)
+- "Skill issue" is a diagnosis, not an insult
 
 ---
 
