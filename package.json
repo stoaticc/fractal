@@ -1,6 +1,6 @@
 {
   "name": "fractal",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "",
   "keywords": [
     "game",
@@ -14,7 +14,7 @@
     "umaera",
     "stoaticc"
   ],
-  "homepage": "https://github.com/NotYarazi/fractal#readme",
+  "homepage": "https://umaera.github.io/p/fractal/",
   "bugs": {
     "url": "https://github.com/NotYarazi/fractal/issues"
   },
@@ -84,13 +84,13 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "source/img/fractal.png"
+      "icon": "source/img/aik9v-bcsc0.icns"
     },
-"linux": {
-  "target": "AppImage",
-  "icon": "source/img/fractal.png",
-  "category": "Game"
-}
+    "linux": {
+      "target": "AppImage",
+      "icon": "source/img/fractal.png",
+      "category": "Game"
+    }
   },
   "devDependencies": {
     "electron": "^39.2.7",

@@ -340,7 +340,7 @@ export default class UISystem {
     ctx.font = "bold 28px Courier New";
     ctx.fillStyle = "#ffff00";
     ctx.fillText(
-      `LVL ${game.level} /// SCORE ${game.score}`,
+      `LVL ${game.level} /// SCORE ${game.score} /// KILLS ${game.totalKills}`,
       game.width / 2,
       boxY + 145
     );

@@ -196,5 +196,4 @@ source/
 ---
 
 **#! FRACTAL »»**
-
-_"Died of cringe" - Death Messages Algorithm, 2025_
+By [umaera](https://umaera.github.io/social)

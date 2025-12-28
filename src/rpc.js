@@ -1,6 +1,6 @@
 const { Client } = require("discord-rpc");
 
-const CLIENT_ID = "123123123123123123"; // Replace with your actual Discord Application Client ID
+const CLIENT_ID = "1392879654557450291"; // Replace with your actual Discord Application Client ID
 
 class DiscordRPC {
   constructor() {
@@ -206,8 +206,8 @@ class DiscordRPC {
         instance: false,
         buttons: [
           {
-            label: "Get FRACTAL",
-            url: "https://github.com/NotYarazi/fractal",
+            label: "GET FRACTAL",
+            url: "https://umaera.github.io/p/fractal/",
           },
         ],
       });

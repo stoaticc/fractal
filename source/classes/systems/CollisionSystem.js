@@ -39,6 +39,30 @@ export default class CollisionSystem {
       if (game.powerUps[i].checkCollision(game.player)) {
         const powerUp = game.powerUps[i];
 
+        // Explode/kill nearby enemies on powerup pickup
+        const EXPLOSION_RADIUS = CONFIG.POWERUPS.PICKUP_EXPLOSION_RADIUS;
+        let enemiesKilled = 0;
+        for (let j = game.enemies.length - 1; j >= 0; j--) {
+          const enemy = game.enemies[j];
+          const dx = enemy.getCenterX() - powerUp.getCenterX();
+          const dy = enemy.getCenterY() - powerUp.getCenterY();
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < EXPLOSION_RADIUS) {
+            // Spawn explosion effect
+            game.particlePool.spawnExplosion(
+              enemy.getCenterX(),
+              enemy.getCenterY(),
+              10
+            );
+            // Remove enemy
+            game.enemies.splice(j, 1);
+            enemiesKilled++;
+          }
+        }
+        if (enemiesKilled > 0) {
+          game.screenShake.shake(20, 25);
+        }
+
         if (powerUp.type === "health") {
           // Heal player
           game.player.health = Math.min(
@@ -155,6 +179,28 @@ export default class CollisionSystem {
         // Purchase star orb
         game.score -= CONFIG.SCORING.STAR_ORB_COST;
         game.player.addStar();
+
+        // --- Explode/kill nearby enemies on star pickup --- //
+        const EXPLOSION_RADIUS = CONFIG.POWERUPS.PICKUP_EXPLOSION_RADIUS;
+        let enemiesKilled = 0;
+        for (let j = game.enemies.length - 1; j >= 0; j--) {
+          const enemy = game.enemies[j];
+          const dx = enemy.getCenterX() - orb.getCenterX();
+          const dy = enemy.getCenterY() - orb.getCenterY();
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < EXPLOSION_RADIUS) {
+            game.particlePool.spawnExplosion(
+              enemy.getCenterX(),
+              enemy.getCenterY(),
+              10
+            );
+            game.enemies.splice(j, 1);
+            enemiesKilled++;
+          }
+        }
+        if (enemiesKilled > 0) {
+          game.screenShake.shake(20, 25);
+        }
 
         // Collection particles using pool
         game.particlePool.spawnTrail(
@@ -332,6 +378,7 @@ export default class CollisionSystem {
               game.enemies.splice(i, 1);
               game.score += xpConfig.value * xpConfig.count;
               game.enemiesKilled++;
+              game.totalKills++;
 
               if (game.enemiesKilled >= game.enemiesPerLevel) {
                 game.level++;

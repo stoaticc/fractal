@@ -1,20 +1,24 @@
+import { CONFIG } from "../config/GameConfig.js";
+
 export default class NovaLaser {
   constructor(x, y, directionX, directionY) {
     this.x = x;
     this.y = y;
     this.directionX = directionX;
     this.directionY = directionY;
-    this.damage = 40; // Massive damage
-    this.thickness = 80; // Thick beam
+    const novaCfg =
+      CONFIG.BOSSES?.NOVA?.NOVA_LASER || CONFIG.PROJECTILES?.NOVA_LASER || {};
+    this.damage = novaCfg.DAMAGE;
+    this.thickness = novaCfg.THICKNESS || novaCfg.WIDTH || 15;
 
     // Warning phase
     this.warningTimer = 0;
-    this.warningDuration = 40; // ~0.66 seconds warning
+    this.warningDuration = novaCfg.WARNING_DURATION || 40;
     this.isWarning = true;
 
     // Active phase
     this.activeTimer = 0;
-    this.activeDuration = 25; // ~0.4 seconds of active beam
+    this.activeDuration = novaCfg.ACTIVE_DURATION || 25;
     this.isActive = false;
 
     // Visual effects
@@ -22,7 +26,7 @@ export default class NovaLaser {
     this.intensity = 0;
 
     // Calculate beam length (goes through entire screen)
-    this.length = 3000; // Long enough to cover any screen
+    this.length = novaCfg.LENGTH || 2000;
   }
 
   update() {

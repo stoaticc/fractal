@@ -181,6 +181,7 @@ export default class CombatSystem {
       // Add to score
       game.score += CONFIG.SCORING.ENEMY_KILL_BASE;
       game.enemiesKilled++;
+      game.totalKills++;
 
       // Remove enemy
       game.enemies.splice(i, 1);
@@ -335,6 +336,7 @@ export default class CombatSystem {
             }
 
             game.enemiesKilled++;
+            game.totalKills++;
 
             // Check for level up
             if (game.enemiesKilled >= game.enemiesPerLevel) {
@@ -389,6 +391,7 @@ export default class CombatSystem {
           game.mage = null;
           game.walls = []; // Remove all walls
           game.bossDefeatedThisSession = true; // Enable time warp spawns
+          game.mageDefeatedOnce = true; // Mark Mage defeated for respawn logic
 
           // Level up
           game.level++;
@@ -651,6 +654,7 @@ export default class CombatSystem {
 
           game.score += CONFIG.SCORING.ENEMY_KILL_BASE;
           game.enemiesKilled++;
+          game.totalKills++;
           game.enemies.splice(j, 1);
         }
       }

@@ -20,6 +20,7 @@ import UISystem from "./systems/UISystem.js";
 import BossSystem from "./systems/BossSystem.js";
 import ItemSystem from "./systems/ItemSystem.js";
 import DrawSystem from "./systems/DrawSystem.js";
+import BotPlay from "./systems/BotPlay.js";
 import { ParticlePool, ProjectilePool } from "./systems/ObjectPool.js";
 
 // Config //
@@ -96,6 +97,7 @@ export default class Game {
     this.bossSystem = new BossSystem(this);
     this.itemSystem = new ItemSystem(this);
     this.drawSystem = new DrawSystem(this);
+    this.botPlay = new BotPlay(this);
 
     // Setup mouse listeners once in constructor
     this.input.setupMouseListeners(
@@ -103,6 +105,9 @@ export default class Game {
       (x, y) => this.combatSystem.shoot(x, y),
       (x, y) => this.combatSystem.placeBomb(x, y)
     );
+
+    // Initialize totalKills once - persists across game resets
+    this.totalKills = 0;
 
     this.init();
 
@@ -120,6 +125,39 @@ export default class Game {
 
   init() {
     this.player = new Player(this.width / 2, this.height / 2);
+
+    // Zoom limits (prevent browser zoom from exceeding 130% or going below 60%)
+    const MIN_ALLOWED = 0.6; // 60%
+    const MAX_ALLOWED = 1.3; // 130%
+    const wrapper = document.querySelector(".game-wrapper");
+    if (wrapper) {
+      wrapper.style.transformOrigin = "0 0";
+      const zoomWarning = document.getElementById("zoomWarning");
+
+      const enforceZoom = () => {
+        const actual = window.devicePixelRatio || 1;
+        const clamped = Math.min(MAX_ALLOWED, Math.max(MIN_ALLOWED, actual));
+        const scale = clamped / actual;
+        wrapper.style.transform = `scale(${scale})`;
+
+        if (zoomWarning) {
+          zoomWarning.style.display = clamped !== actual ? "flex" : "none";
+        }
+      };
+      enforceZoom();
+      window.addEventListener("resize", enforceZoom);
+      try {
+        const mq = window.matchMedia(
+          `(resolution: ${window.devicePixelRatio}dppx)`
+        );
+        if (mq && "addEventListener" in mq) {
+          mq.addEventListener("change", enforceZoom);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
     this.enemies = [];
     this.projectiles = [];
     this.enemyProjectiles = [];
@@ -146,6 +184,7 @@ export default class Game {
     this.novaActive = false;
     this.novaReappearLevel = null;
     this.novaDefeatedOnce = false; // Track if Nova was ever killed (for respawn logic)
+    this.mageDefeatedOnce = false; // Track if Mage was ever killed (for respawn logic)
     this.novaLasers = [];
     this.walls = [];
     this.screenShake = new ScreenShake();
@@ -729,6 +768,16 @@ export default class Game {
       this.input.keys.delete("K");
     }
 
+    // Bot play toggle with B key
+    if (this.input.keys.has("b") || this.input.keys.has("B")) {
+      this.botPlay.toggle();
+      this.input.keys.delete("b");
+      this.input.keys.delete("B");
+    }
+
+    // Update bot play system
+    this.botPlay.update();
+
     // Screenshot with F2
     if (this.input.keys.has("F2")) {
       this.takeScreenshot();
@@ -849,6 +898,9 @@ export default class Game {
     if (this.gameOver) {
       this.uiSystem.drawGameOver(this.ctx);
     }
+
+    // Bot play label
+    this.botPlay.draw(this.ctx);
 
     // Screenshot message feedback (small text above player)
     if (this.screenshotMessageTimer > 0) {

@@ -191,20 +191,28 @@ export default class SpawnSystem {
       }
     }
 
-    // Spawn Mage boss (level 8, then every 6 levels)
+    // Spawn Mage boss (first at SPAWN_LEVEL, then every RESPAWN_INTERVAL after being defeated)
     if (
       !game.mage &&
       !game.nova && // Don't spawn Mage if Nova is active
       game.level >= CONFIG.BOSSES.MAGE.SPAWN_LEVEL &&
-      (game.level - CONFIG.BOSSES.MAGE.SPAWN_LEVEL) %
-        CONFIG.BOSSES.MAGE.RESPAWN_INTERVAL ===
-        0 &&
       game.enemies.length === 0
     ) {
-      this.spawnMage();
+      const spawnLevel = CONFIG.BOSSES.MAGE.SPAWN_LEVEL;
+      const respawnInterval = CONFIG.BOSSES.MAGE.RESPAWN_INTERVAL;
+
+      if (!game.mageDefeatedOnce) {
+        // First opportunity at or after spawn level
+        this.spawnMage();
+      } else {
+        // After defeat, only spawn at proper respawn intervals
+        if ((game.level - spawnLevel) % respawnInterval === 0) {
+          this.spawnMage();
+        }
+      }
     }
 
-    // Spawn Nova boss (level 10 first time, then every 10 levels after being killed)
+    // Spawn Nova boss (first at SPAWN_LEVEL, then every RESPAWN_INTERVAL after being killed)
     if (
       !game.nova &&
       !game.mage && // Don't spawn Nova if Mage is active
@@ -213,15 +221,15 @@ export default class SpawnSystem {
       const novaSpawnLevel = CONFIG.BOSSES.NOVA.SPAWN_LEVEL;
       const novaRespawnInterval = CONFIG.BOSSES.NOVA.RESPAWN_INTERVAL;
 
-      // First spawn at level 10 if Nova was never killed
-      if (!game.novaDefeatedOnce && game.level === novaSpawnLevel) {
+      // First opportunity at or after spawn level
+      if (!game.novaDefeatedOnce && game.level >= novaSpawnLevel) {
         this.spawnNova();
       }
-      // After being killed, respawn every 10 levels (20, 30, 40, etc.)
+      // After being killed, respawn every RESPAWN_INTERVAL (20, 30, ...)
       else if (
         game.novaDefeatedOnce &&
         game.level >= novaSpawnLevel &&
-        game.level % novaRespawnInterval === 0
+        (game.level - novaSpawnLevel) % novaRespawnInterval === 0
       ) {
         this.spawnNova();
       }

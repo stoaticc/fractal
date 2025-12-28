@@ -1,4 +1,4 @@
-// BossSystem.js - Handles Mage and Nova boss updates and mechanics
+// BossSystem.js
 
 import Enemy from "../entities/Enemy.js";
 import Wall from "../entities/Wall.js";

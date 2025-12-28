@@ -1,5 +1,3 @@
-// ItemSystem.js - Handles items, orbs, and entity updates
-
 import EnemyProjectile from "../projectiles/EnemyProjectile.js";
 
 export default class ItemSystem {
@@ -13,6 +11,8 @@ export default class ItemSystem {
     const timeScale = game.getTimeScale();
 
     game.enemies.forEach((enemy) => {
+      enemy._gameEnemies = game.enemies;
+      enemy._gameWalls = game.walls;
       // Apply time warp - slow down enemy
       const originalSpeed = enemy.speed;
       enemy.speed = originalSpeed * timeScale;
@@ -42,6 +42,9 @@ export default class ItemSystem {
           game.enemyProjectiles.push(enemyProj);
         }
       }
+      // Clean up reference
+      delete enemy._gameEnemies;
+      delete enemy._gameWalls;
     });
   }
 

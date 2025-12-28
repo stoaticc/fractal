@@ -9,14 +9,14 @@ export const CONFIG = {
     WIDTH: 40,
     HEIGHT: 40,
     SPEED: 5,
-    MAX_HEALTH: 100,
+    MAX_HEALTH: 100, // default: 100
     COLOR: "#00ff00",
     MAX_STACK_SIZE: 8, // Max items per inventory slot
     INVENTORY_SLOTS: 3,
     DASH: {
       SPEED: 25, // How fast the dash moves
       DURATION: 8, // Frames the dash lasts
-      COOLDOWN: 45, // Frames before can dash again (0.75 sec)
+      COOLDOWN: 45,
       INVINCIBILITY_DURATION: 12, // Brief i-frames during dash
       TRAIL_LENGTH: 5, // Number of trail positions to store
     },
@@ -27,6 +27,19 @@ export const CONFIG = {
   // ===================
   ENEMY: {
     DEFAULT_SIZE: 30,
+    FLOCKING: {
+      ENABLED: true,
+      SEPARATION_RADIUS: 50, // px, avoid crowding
+      ALIGN_RADIUS: 80, // px, align with neighbors
+      COHESION_RADIUS: 120, // px, move toward group
+      SEPARATION_FORCE: 2.0,
+      ALIGN_FORCE: 0.7,
+      COHESION_FORCE: 0.5,
+      WALL_AVOID_FORCE: 2.5,
+      WALL_AVOID_RADIUS: 60,
+      RANDOMNESS: 0.2,
+      PLAYER_ATTRACT_FORCE: 1.0, // How much to seek player
+    },
     TYPES: {
       DUMB: {
         SPEED: 2,
@@ -94,6 +107,13 @@ export const CONFIG = {
       SPAWN_LEVEL: 10, // Nova appears first at level 10
       RESPAWN_INTERVAL: 10, // Every 10 levels after being killed
       REAPPEAR_LEVELS: 2, // Reappear after 2 levels if disappeared
+      NOVA_LASER: {
+        DAMAGE: 40,
+        THICKNESS: 80,
+        WARNING_DURATION: 40,
+        ACTIVE_DURATION: 25,
+        LENGTH: 3000,
+      },
     },
   },
 
@@ -109,16 +129,31 @@ export const CONFIG = {
       COLOR: "#ffff00",
     },
     ENEMY: {
-      WIDTH: 8,
-      HEIGHT: 8,
-      SPEED: 4,
-      DAMAGE: 15,
-      COLOR: "#ff3300",
+      WIDTH: 8, // Enemy projectile width
+      HEIGHT: 8, // Enemy projectile height
+      SPEED: 4, // Enemy projectile speed
+      DAMAGE: 15, // Enemy projectile damage
+      COLOR: "#ff3300", // Enemy projectile color
     },
     NOVA_LASER: {
       DAMAGE: 25,
       WIDTH: 15,
       DURATION: 60,
+    },
+  },
+
+  // ===================
+  // ENTITY SETTINGS
+  // ===================
+  ENTITY: {
+    WALL: {
+      WIDTH: 40,
+      HEIGHT: 60,
+      EMERGING_DURATION: 60, // 1 second to emerge
+      SHAKE_INTENSITY: 5,
+      HEALTH: 100,
+      MAX_HEALTH: 100,
+      EXPLODING_DURATION: 60,
     },
   },
 
@@ -181,6 +216,7 @@ export const CONFIG = {
   // ===================
   POWERUPS: {
     HEALTH_RESTORE: 30,
+    PICKUP_EXPLOSION_RADIUS: 200, // Radius for enemy explosion on powerup pickup
     MULTISHOT: {
       DURATION: 300,
       SPREAD_ANGLE: 0.3,
@@ -265,7 +301,7 @@ export const CONFIG = {
   // ANIMATION TIMINGS
   // ===================
   ANIMATION: {
-    LEVEL_TRANSITION_DURATION: 120,
+    LEVEL_TRANSITION_DURATION: 80,
     LEVEL_TRANSITION_EXPAND: 30,
     LEVEL_TRANSITION_HOLD: 60,
     LEVEL_TRANSITION_SHRINK: 30,

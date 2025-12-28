@@ -3,9 +3,6 @@
 
 import CONFIG from "../config/GameConfig.js";
 
-/**
- * Generic object pool for reusing objects instead of garbage collecting
- */
 export class ObjectPool {
   constructor(createFn, resetFn, initialSize = 50) {
     this.createFn = createFn; // Function to create new object
@@ -19,9 +16,6 @@ export class ObjectPool {
     }
   }
 
-  /**
-   * Get an object from the pool (or create new if empty)
-   */
   get(...args) {
     let obj;
     if (this.pool.length > 0) {
@@ -34,9 +28,6 @@ export class ObjectPool {
     return obj;
   }
 
-  /**
-   * Return an object to the pool
-   */
   release(obj) {
     const index = this.active.indexOf(obj);
     if (index > -1) {
@@ -45,40 +36,25 @@ export class ObjectPool {
     }
   }
 
-  /**
-   * Release all active objects back to pool
-   */
   releaseAll() {
     while (this.active.length > 0) {
       this.pool.push(this.active.pop());
     }
   }
 
-  /**
-   * Get all active objects
-   */
   getActive() {
     return this.active;
   }
 
-  /**
-   * Get count of active objects
-   */
   getActiveCount() {
     return this.active.length;
   }
 
-  /**
-   * Get count of available objects in pool
-   */
   getAvailableCount() {
     return this.pool.length;
   }
 }
 
-/**
- * Particle Pool - Specialized pool for particles
- */
 export class ParticlePool {
   constructor(initialSize = CONFIG.POOLS.PARTICLES) {
     this.pool = [];
@@ -107,9 +83,7 @@ export class ParticlePool {
     };
   }
 
-  /**
-   * Spawn a default particle
-   */
+  // Spawn a default particle
   spawn(x, y, color = "#ff6600") {
     const p = this.pool.length > 0 ? this.pool.pop() : this._createParticle();
     const cfg = CONFIG.PARTICLES.DEFAULT;
@@ -131,9 +105,8 @@ export class ParticlePool {
     return p;
   }
 
-  /**
-   * Spawn an explosion particle (single)
-   */
+  // Spawn an explosion particle (single)
+
   _spawnExplosionSingle(x, y) {
     const p = this.pool.length > 0 ? this.pool.pop() : this._createParticle();
     const cfg = CONFIG.PARTICLES.EXPLOSION;
@@ -155,18 +128,14 @@ export class ParticlePool {
     return p;
   }
 
-  /**
-   * Spawn multiple explosion particles
-   */
+  // Spawn multiple explosion particles
   spawnExplosion(x, y, count = 10) {
     for (let i = 0; i < count; i++) {
       this._spawnExplosionSingle(x, y);
     }
   }
 
-  /**
-   * Spawn a projectile trail particle (single)
-   */
+  // Spawn a projectile trail particle (single)
   _spawnTrailSingle(x, y, color = "#ffff00") {
     const p = this.pool.length > 0 ? this.pool.pop() : this._createParticle();
     const cfg = CONFIG.PARTICLES.TRAIL;
@@ -188,18 +157,14 @@ export class ParticlePool {
     return p;
   }
 
-  /**
-   * Spawn trail particles (batch version with optional color and count)
-   */
+  // Spawn trail particles (batch version with optional color and count)
   spawnTrail(x, y, color = "#ffff00", count = 1) {
     for (let i = 0; i < count; i++) {
       this._spawnTrailSingle(x, y, color);
     }
   }
 
-  /**
-   * Update all active particles
-   */
+  // Update all active particles
   update() {
     for (let i = this.active.length - 1; i >= 0; i--) {
       const p = this.active[i];
@@ -222,9 +187,7 @@ export class ParticlePool {
     }
   }
 
-  /**
-   * Draw all active particles
-   */
+  // Draw all active particles
   draw(ctx) {
     for (let i = 0; i < this.active.length; i++) {
       const p = this.active[i];
@@ -237,16 +200,12 @@ export class ParticlePool {
     ctx.globalAlpha = 1;
   }
 
-  /**
-   * Get count of active particles
-   */
+  // Get count of active particles
   getActiveCount() {
     return this.active.length;
   }
 
-  /**
-   * Clear all particles
-   */
+  // Clear all particles
   clear() {
     while (this.active.length > 0) {
       const p = this.active.pop();
@@ -256,9 +215,7 @@ export class ParticlePool {
   }
 }
 
-/**
- * Projectile Pool - Specialized pool for projectiles
- */
+// Projectile Pool - Specialized pool for projectiles
 export class ProjectilePool {
   constructor(initialSize = CONFIG.POOLS.PROJECTILES) {
     this.pool = [];
@@ -285,9 +242,7 @@ export class ProjectilePool {
     };
   }
 
-  /**
-   * Spawn a player projectile
-   */
+  // Spawn a player projectile
   spawn(x, y, targetX, targetY) {
     const p = this.pool.length > 0 ? this.pool.pop() : this._createProjectile();
     const cfg = CONFIG.PROJECTILES.PLAYER;
@@ -313,9 +268,7 @@ export class ProjectilePool {
     return p;
   }
 
-  /**
-   * Spawn an enemy projectile
-   */
+  // Spawn an enemy projectile
   spawnEnemy(x, y, targetX, targetY) {
     const p = this.pool.length > 0 ? this.pool.pop() : this._createProjectile();
     const cfg = CONFIG.PROJECTILES.ENEMY;
@@ -341,9 +294,7 @@ export class ProjectilePool {
     return p;
   }
 
-  /**
-   * Update all active projectiles
-   */
+  // Update all active projectiles
   update() {
     for (let i = this.active.length - 1; i >= 0; i--) {
       const p = this.active[i];
@@ -352,9 +303,7 @@ export class ProjectilePool {
     }
   }
 
-  /**
-   * Release a projectile back to pool
-   */
+  // Release a projectile back to pool
   release(projectile) {
     const index = this.active.indexOf(projectile);
     if (index > -1) {
@@ -364,9 +313,7 @@ export class ProjectilePool {
     }
   }
 
-  /**
-   * Check if projectile is off screen and release it
-   */
+  // Check if projectile is off screen and release it
   releaseIfOffScreen(projectile, width, height) {
     const margin = projectile.isEnemy ? 50 : 0;
     if (
@@ -381,9 +328,7 @@ export class ProjectilePool {
     return false;
   }
 
-  /**
-   * Draw all active projectiles
-   */
+  // Draw all active projectiles
   draw(ctx) {
     for (let i = 0; i < this.active.length; i++) {
       const p = this.active[i];
@@ -419,16 +364,12 @@ export class ProjectilePool {
     }
   }
 
-  /**
-   * Get all active projectiles
-   */
+  // Get all active projectiles
   getActive() {
     return this.active;
   }
 
-  /**
-   * Clear all projectiles
-   */
+  // Clear all projectiles
   clear() {
     while (this.active.length > 0) {
       const p = this.active.pop();
@@ -437,9 +378,7 @@ export class ProjectilePool {
     }
   }
 
-  /**
-   * Check collision with entity
-   */
+  // Check collision with entity
   checkCollision(projectile, entity) {
     return (
       projectile.x < entity.x + entity.width &&

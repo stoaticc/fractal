@@ -1,4 +1,17 @@
-# 0.8.0 - Code Revolution, Enemies confusion (22rd december)
+# = SUPA COOL CHANGELOG =
+## Release 0.8.1
+> "quick fix & drop" - 28 december
+- Added: manifest & service modal for mobile devices. - Mobile isn't supported yet.
+- Added: bot play (press b)
+- No text select bug...
+- Total Kills statistic added to gameover screen!
+- Stars and powerups kill enemies near it when picked up.
+- Enemy vision/moviment system remade!
+- Fixed: bosses missing properties and not spawning (lvl10 = nova, lvl8 = mage).
+- Added: ZOOM LIMITS! (no more than 130%, no less than 60%)
+
+## Release 0.8.0
+> "Code Revolution, Enemies confusion" - 22 december
 - DISCORD INTEGRATION ADDED!! (it's supa cool)
 - Files organized (no more +3000 line game.js ahh)
 - EASY CONFIG FILE!!!!! omgomg, all in: `classes/config/GameConfig.js`
@@ -18,7 +31,8 @@
 - Bullets are slightly more larger
 - NOVA lasts longer in the fight before desapearing (30s)
 
-# 0.7.0 - More speed, More Mechanics to more fates! (22rd december)
+## Release 0.7.0
+> "More speed, More Mechanics to more fates!" - 22 december
 - Stars are HUGE!
 - Max particles - from 500 to 120
 - Now when leveled up, some enemies explode and some stay (it's called fate - 50%)
@@ -37,7 +51,8 @@
 - CURSORS!!!! funny. They shape.
 - Now bossbars scale (width) depending on the value.
 
-# 0.6.0 - Um... technicly.. (16th december)
+## indev 0.6.0
+> "Um... technicly.." - 16 december
 - Optimized particle limit
 - Color inversion reduced
 - Nova lazer: from line to BEAM
@@ -46,7 +61,8 @@
 - accuracy -> playerStyleTrack (defence/attack)
 - BETTER GAME OVER SCREEN!
 
-# 0.5.0 - BOOM AND PLUH! (15th december)
+## indev 0.5.0
+> "BOOM AND PLUH!" - 15 december
 - Skiped a few versions.
 - full screen
 - vhs effects
@@ -58,41 +74,4 @@
 - NOVA - the glitch, destroys, inverts, shoots lazer, moves player, spawns enemies and just goes away.
 - funny death message
 
-Controls: buy star (8), spawn mage (9), spawn nova (7), pause nova (k)
-
-# 0.2.0 - YEAHHHHH (15th december)
-## Level System
-- Start at Level 1, progress by killing enemies
-- Each level requires more kills (10, then 15, 20, etc.)
-- Difficulty increases: spawn rate gets faster each level
-- Level displayed in UI with kill progress tracker
-## Three Enemy Types (same red sprite, tiny color indicators):
-- Dumb (no dot) - Walks straight toward you (Level 1+)
-- Smart (yellow dot) - Dodges your projectiles and shoots at you! (Level 2+)
-- Teleport (cyan dot) - Fades out and teleports near you (Level 3+)
-## Level Transition Animation
-- Screen fades with colorful celebration particles
-- "LEVEL X - GET READY!" message
-- 3-second transition between levels
-- All enemies/projectiles cleared
-## Death Animation
-- Massive explosion of 50+ particles
-- Ultra-intense screen shake (30 intensity, 40 frames)
-- Player sprite disappears
-- 2-second dramatic death sequence before game over
-## Smart Enemy AI
-- Detects nearby projectiles and dodges perpendicular
-- Maintains distance from player (150px)
-- Shoots red projectiles every 2 seconds
-- More health (40 HP vs 30)
-## Teleport Enemy Mechanics
-- Fades to transparent before teleporting
-- Reappears near player (100-250px away)
-- Teleports every 3 seconds
-- Less health (25 HP) to balance
-# Enhanced UI
-- Level number
-- Kill progress (X/Y enemies)
-- Final level shown on game over
-
-# 0.1.0 - Initial Release (15th december)
+# 0.1.0 - Initial Release - 15 december

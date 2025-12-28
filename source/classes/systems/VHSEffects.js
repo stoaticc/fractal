@@ -207,7 +207,7 @@ export default class VHSEffects {
         });
       }
     }
-    // Phase 4: Fade to game (70-100%) - returns true to indicate game should draw
+    // Phase 4: Fade to game (70-100%)
     else {
       // Hide logo
       if (game.vhsLogo) {

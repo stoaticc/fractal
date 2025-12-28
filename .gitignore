@@ -5,3 +5,6 @@ dist/
 .vscode/
 node_modules/
 package-lock.json
+ideas.md
+website/
+pnpm-lock.yaml
