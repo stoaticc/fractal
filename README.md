@@ -153,7 +153,7 @@ source/
 ├── index.html          (Entry point)
 ├── root.css            (VHS-style UI)
 └── classes/
-    ├── Game.js         (3000+ lines - main orchestrator)
+    ├── Game.js         (main thing)
     ├── index.js        (Initialization)
     ├── bosses/         (Mage, Nova)
     ├── entities/       (Player, Enemy, Wall)
@@ -168,7 +168,7 @@ source/
 
 - **Vanilla JavaScript (ES6+)** - Pure chaos, zero dependencies
 - **HTML5 Canvas API** - Raw pixel manipulation
-- **Modular ES6 Classes** - 23 files, organized by category
+- **Modular ES6 Classes** - +30 files, organized by category
 - **Custom particle systems** - Explosions, trails, glitch aura
 - **State machines** - Boss AI behaviors
 - **No frameworks** - Just skill and canvas methods
