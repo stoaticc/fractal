@@ -1,6 +1,6 @@
 const { Client } = require("discord-rpc");
 
-const CLIENT_ID = "1392879654557450291"; // Replace with your actual Discord Application Client ID
+const CLIENT_ID = "-"; // Replace with your actual Discord Application Client ID
 
 class DiscordRPC {
   constructor() {
